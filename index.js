@@ -27,7 +27,7 @@ async function run() {
     // get one tools
     app.get("/parts/:_id", async (req, res) => {
       const _id = req.params._id;
-      const query = {_id: ObjectId(_id)}
+      const query = { _id: ObjectId(_id) };
       const result = await partsCollection.findOne(query);
       res.send(result);
     });
@@ -35,6 +35,24 @@ async function run() {
     app.post("/ordered", async (req, res) => {
       const ordered = req.body;
       const result = await orderedCollection.insertOne(ordered);
+      res.send(result);
+    });
+    // update parts
+    app.put("/parts/:_id", async (req, res) => {
+      const _id = req.params._id;
+      const query = { _id: ObjectId(_id) };
+      const updatedQuantity = req.body;
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: updatedQuantity.deliveredQuantity,
+        },
+      };
+      const result = await partsCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
       res.send(result);
     });
   } finally {
