@@ -56,6 +56,20 @@ async function run() {
       const result = await orderedCollection.insertOne(ordered);
       res.send(result);
     });
+    // get logged user orders
+    app.get("/ordered", async (req, res) => {
+      const email = req.query.email;
+      if (email) {
+        const query = { email: email };
+        const cursor = orderedCollection.find(query);
+        const result = await cursor.toArray();
+        res.send(result);
+      } else {
+        const result = await orderedCollection.find().toArray();
+        res.send(result);
+      }
+    });
+    // add parts
     app.post("/parts", async (req, res) => {
       const newProduct = req.body;
       const result = await partsCollection.insertOne(newProduct);
@@ -67,14 +81,7 @@ async function run() {
       const result = await reviewCollection.insertOne(review);
       res.send(result);
     });
-    // get logged user orders
-    app.get("/ordered", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      const cursor = orderedCollection.find(query);
-      const result = await cursor.toArray();
-      res.send(result);
-    });
+
     // delete order
     app.delete("/ordered/:_id", async (req, res) => {
       const _id = req.params._id;
