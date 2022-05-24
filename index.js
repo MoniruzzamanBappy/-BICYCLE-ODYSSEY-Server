@@ -37,6 +37,7 @@ async function run() {
     const partsCollection = client.db("bicycle_odyssey").collection("parts");
     const orderedCollection = client.db("bicycle_odyssey").collection("orderd");
     const userCollection = client.db("bicycle_odyssey").collection("users");
+    // get all parts
     app.get("/parts", async (req, res) => {
       const result = await partsCollection.find().toArray();
       res.send(result);
@@ -54,6 +55,21 @@ async function run() {
       const result = await orderedCollection.insertOne(ordered);
       res.send(result);
     });
+    // get logged user orders
+    app.get("/ordered", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = orderedCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // delete order
+    app.delete("/ordered/:_id", async (req, res) => {
+      const _id = req.params._id;
+      const query = { _id: ObjectId(_id) };
+      const result = await orderedCollection.deleteOne(query);
+      res.send(result);
+    });
     // update parts
     app.put("/parts/:_id", async (req, res) => {
       const _id = req.params._id;
@@ -65,11 +81,7 @@ async function run() {
           quantity: updatedQuantity.deliveredQuantity,
         },
       };
-      const result = await partsCollection.updateOne(
-        query,
-        updateDoc,
-        options
-      );
+      const result = await partsCollection.updateOne(query, updateDoc, options);
       res.send(result);
     });
     app.get("/users", verifyJWT, async (req, res) => {
@@ -116,7 +128,6 @@ async function run() {
       });
       res.send({ result, token });
     });
-
   } finally {
   }
 }
@@ -127,5 +138,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`bicycle app listening on port ${port}`);
+  console.log(`bicycle odyssey app listening on port ${port}`);
 });
