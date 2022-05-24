@@ -37,6 +37,7 @@ async function run() {
     const partsCollection = client.db("bicycle_odyssey").collection("parts");
     const orderedCollection = client.db("bicycle_odyssey").collection("orderd");
     const userCollection = client.db("bicycle_odyssey").collection("users");
+    const reviewCollection = client.db("bicycle_odyssey").collection("reviews");
     // get all parts
     app.get("/parts", async (req, res) => {
       const result = await partsCollection.find().toArray();
@@ -53,6 +54,12 @@ async function run() {
     app.post("/ordered", async (req, res) => {
       const ordered = req.body;
       const result = await orderedCollection.insertOne(ordered);
+      res.send(result);
+    });
+    // add review
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
       res.send(result);
     });
     // get logged user orders
