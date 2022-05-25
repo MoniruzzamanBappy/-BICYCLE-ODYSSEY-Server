@@ -162,13 +162,20 @@ async function run() {
           options
         );
         res.send(result);
-      } else if (updatedData.delivertext) {
+      }
+    });
+    // update order
+    app.put("/ordered/:_id", async (req, res) => {
+      const _id = req.params._id;
+      const query = { _id: ObjectId(_id) };
+      const updatedData = req.body;
+      if (updatedData.delivertext) {
         const updateDoc = {
           $set: {
             deliveredText: updatedData.delivertext,
           },
         };
-        const result = await partsCollection.updateOne(query, updateDoc);
+        const result = await orderedCollection.updateOne(query, updateDoc);
         res.send(result);
       }
     });
