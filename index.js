@@ -39,7 +39,9 @@ async function run() {
     const orderedCollection = client.db("bicycle_odyssey").collection("orderd");
     const userCollection = client.db("bicycle_odyssey").collection("users");
     const reviewCollection = client.db("bicycle_odyssey").collection("reviews");
-    const paymentCollection = client.db("bicycle_odyssey").collection("payments");
+    const paymentCollection = client
+      .db("bicycle_odyssey")
+      .collection("payments");
     const profileCollection = client
       .db("bicycle_odyssey")
       .collection("profiles");
@@ -52,12 +54,11 @@ async function run() {
     app.post("/create-payment-intent", async (req, res) => {
       const service = req.body;
       const newPrice = service.totalPrice;
-      const amount = newPrice*100;
+      const amount = newPrice * 100;
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
         currency: "usd",
-        payment_method_types: ['card']
-        
+        payment_method_types: ["card"],
       });
       res.send({
         clientSecret: paymentIntent.client_secret,
@@ -71,22 +72,20 @@ async function run() {
       res.send(result);
     });
     // update payment
-    app.patch('/ordered/:id', async (req, res)=>{
+    app.patch("/ordered/:id", async (req, res) => {
       const id = req.params.id;
       const payment = req.body;
       const query = { _id: ObjectId(id) };
       const updateDoc = {
         $set: {
           paid: true,
-          transactionId: payment.transactionId
-
-
-        }
-      }
+          transactionId: payment.transactionId,
+        },
+      };
       const updatedOrders = await orderedCollection.updateOne(query, updateDoc);
       const result = await paymentCollection.insertOne(payment);
-      res.send(updatedOrders)
-    })
+      res.send(updatedOrders);
+    });
     // add order
     app.post("/ordered", async (req, res) => {
       const ordered = req.body;
@@ -149,16 +148,31 @@ async function run() {
     app.put("/parts/:_id", async (req, res) => {
       const _id = req.params._id;
       const query = { _id: ObjectId(_id) };
-      const updatedQuantity = req.body;
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          quantity: updatedQuantity.deliveredQuantity,
-        },
-      };
-      const result = await partsCollection.updateOne(query, updateDoc, options);
-      res.send(result);
+      const updatedData = req.body;
+      if (updatedData.deliveredQuantity) {
+        const options = { upsert: true };
+        const updateDoc = {
+          $set: {
+            quantity: updatedData.deliveredQuantity,
+          },
+        };
+        const result = await partsCollection.updateOne(
+          query,
+          updateDoc,
+          options
+        );
+        res.send(result);
+      } else if (updatedData.delivertext) {
+        const updateDoc = {
+          $set: {
+            deliveredText: updatedData.delivertext,
+          },
+        };
+        const result = await partsCollection.updateOne(query, updateDoc);
+        res.send(result);
+      }
     });
+    // get users
     app.get("/users", verifyJWT, async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
