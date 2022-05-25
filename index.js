@@ -184,6 +184,11 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
+    // get users
+    app.get("/reviews", async (req, res) => {
+      const reviews = await reviewCollection.find().toArray();
+      res.send(reviews);
+    });
 
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
