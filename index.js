@@ -184,7 +184,7 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
-    // get users
+    // get reviews
     app.get("/reviews", async (req, res) => {
       const reviews = await reviewCollection.find().toArray();
       res.send(reviews);
