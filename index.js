@@ -130,6 +130,13 @@ async function run() {
       const result = await partsCollection.insertOne(newProduct);
       res.send(result);
     });
+    // delete parts
+    app.delete("/parts/:_id", async (req, res) => {
+      const _id = req.params._id;
+      const query = { _id: ObjectId(_id) };
+      const result = await partsCollection.deleteOne(query);
+      res.send(result);
+    });
     // add review
     app.post("/reviews", async (req, res) => {
       const review = req.body;
